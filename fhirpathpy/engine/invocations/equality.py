@@ -184,14 +184,27 @@ def check_length(value):
         )
 
 
-def remove_duplicate_extension(list):
+def remove_duplicate_extension(coll):
     """
-    This is a temporary solution for cases where the list contains 2 items with the same key,
-    like birthDate and _birthDate. Needs to be fixed to a better solution.
+    Member navigation returns the `_x` element of a primitive (its id and extensions)
+    as a separate node with the same propName as the value. Drop those nodes.
     """
-    if len(list) == 2 and isinstance(list[1], nodes.ResourceNode) and "extension" in list[1].data:
-        return list[:1]
-    return list
+
+    def is_element(item):
+        return isinstance(item, nodes.ResourceNode) and (
+            item.data is None or isinstance(item.data, abc.Mapping)
+        )
+
+    value_paths = {
+        item.propName
+        for item in coll
+        if isinstance(item, nodes.ResourceNode)
+        and item.propName is not None
+        and not is_element(item)
+    }
+    if not value_paths:
+        return coll
+    return [item for item in coll if not (is_element(item) and item.propName in value_paths)]
 
 
 def typecheck(a, b):

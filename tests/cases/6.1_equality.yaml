@@ -161,6 +161,19 @@ tests:
       expression: "(1 'cm').combine(2 'cm') = (10 'mm').combine(30 'mm')"
       result: [false]
 
+    - desc: '** a second item that has an extension is still compared'
+      inputfile: patient-name-extension.json
+      expression: "Patient.name = Patient.name.first()"
+      result: [false]
+
+    - desc: '** the _x element of a primitive is not a separate item'
+      expression: "Ops.strs = ('a' | 'b')"
+      result: [true]
+
+    - desc: '** the _x element of a primitive is not a separate item'
+      expression: "Ops.strs = ('a' | 'c')"
+      result: [false]
+
   # If one or both of the operands is the empty collection, this operation returns
   # an empty collection.
 
@@ -580,6 +593,15 @@ tests:
       expression: "(@2019-01-02 | @2019-01-01) != (@2019-01-02 | @2019-01)"
       result: []
 
+    - desc: '** a second item that has an extension is still compared'
+      inputfile: patient-name-extension.json
+      expression: "Patient.name != Patient.name.first()"
+      result: [true]
+
+    - desc: '** the _x element of a primitive is not a separate item'
+      expression: "Ops.strs != ('a' | 'b')"
+      result: [false]
+
     - 'group: Dates & Times':
       - desc:  'DateTime literal compared with DateTime'
         expression: '@2018 != @2018'
@@ -744,6 +766,14 @@ subject:
   str2: string2
   int1: 1
   int2: 2
+  strs:
+    - a
+    - b
+  _strs:
+    - null
+    - extension:
+        - url: http://example.org/x
+          valueString: x
   coll:
     - a: 1
     - a: 2
